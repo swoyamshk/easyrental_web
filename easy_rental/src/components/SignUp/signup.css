@@ -1,0 +1,4 @@
+.bg-image-small {
+    width: 50%; /* Adjust the percentage to change the size */
+    height: auto; /* Maintain aspect ratio */
+  }
