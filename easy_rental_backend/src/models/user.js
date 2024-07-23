@@ -21,6 +21,11 @@ const userSchema = new Schema({
     type: String,
     trim: true,
   },
+  role:{
+    type: String,
+    enum:["Admin","Customer","Renter"],
+    default: "Customer"
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -36,16 +41,7 @@ const userSchema = new Schema({
     type: String,
     default: 'local', // e.g., 'local', 'google', 'facebook'
   },
-  // Additional custom fields can be added here
-  // Example:
-  // phoneNumber: {
-  //   type: String,
-  //   trim: true,
-  // },
-  // address: {
-  //   type: String,
-  //   trim: true,
-  // },
+ 
 });
 
 

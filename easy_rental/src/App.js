@@ -22,7 +22,6 @@ function App() {
       fuelPolicy: true,
       meetAndGreet: true,
     },
-    // Add more car objects here as needed
   ];
 
   return (
