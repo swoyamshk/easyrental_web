@@ -1,4 +1,4 @@
-const Rental = require('../models/rental');
+const Rental = require('../models/rentalModel');
 
 // Create a new rental
 const createRental = async (req, res) => {

@@ -1,6 +1,6 @@
 const express = require('express');
 // const app = express();
-const createRental = require('../controllers/rentalController');
+const {createRental} = require('../controllers/rentalController');
 
 const router = express.Router();
 

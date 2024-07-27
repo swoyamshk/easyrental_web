@@ -1,6 +1,6 @@
 const express = require('express');
 // const app = express();
-const createFeedback = require('../controllers/feedbackController');
+const {createFeedback} = require('../controllers/feedbackController');
 
 const router = express.Router();
 

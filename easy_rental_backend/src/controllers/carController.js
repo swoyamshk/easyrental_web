@@ -1,13 +1,13 @@
-const Car = require('../models/car');
+const Car = require('../models/carModel');
 
 // Create a new car
 const createCar = async (req, res) => {
   const { brand, model, year, pricePerDay, available } = req.body;
   const newCar = new Car({
-    brand: brand,
-    model: model,
-    year: year,
-    pricePerDay: pricePerDay,
+    brand,
+    model,
+    year,
+    pricePerDay,
     available: available !== undefined ? available : true,
   });
 
@@ -20,5 +20,5 @@ const createCar = async (req, res) => {
 };
 
 module.exports = {
-  createCar
+  createCar,
 };
