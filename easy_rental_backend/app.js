@@ -17,7 +17,7 @@ connectDB();
 
 
 app.use('/api/user', userRoute)
-app.use('/api/auth', authRoute)
+// app.use('/api/auth', authRoute)
 app.use('/api/car', carRoute);
 app.use('/api/feedback', feedbackRoute);
 app.use('/api/payment', paymentRoute);

@@ -4,9 +4,6 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 
-console.log(bcrypt); // Confirm bcrypt is correctly imported
-
-// Create a new user
 const createUser = async (req, res) => {
   const { email, password, displayName, photoURL, role, provider } = req.body;
 
@@ -15,6 +12,7 @@ const createUser = async (req, res) => {
 
     // Check if user already exists
     let user = await User.findOne({ email });
+    console.log('User findOne result:', user); // Log the result
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
@@ -22,6 +20,8 @@ const createUser = async (req, res) => {
     // Hash the password before saving the user
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
+    console.log('Hashed password:', hashedPassword);
 
     // Create a new user instance
     const newUser = new User({
@@ -34,10 +34,7 @@ const createUser = async (req, res) => {
     });
 
     await newUser.save(); // Save the user to the database
-
-    // If you have a UserProfile model, save the user profile
-    // const newProfile = new UserProfile({ user: newUser._id });
-    // await newProfile.save();
+    console.log('User saved:', newUser);
 
     const payload = {
       user: {
@@ -60,7 +57,6 @@ const createUser = async (req, res) => {
   }
 };
 
-// Login user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -69,12 +65,22 @@ const loginUser = async (req, res) => {
 
     // Find the user by email
     let user = await User.findOne({ email });
+    console.log('User findOne result:', user); // Log the result
     if (!user) {
+      console.log('User not found');
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
+    console.log('User found:', user);
+
+    // Log plain text password and hashed password
+    console.log('Plain text password:', password);
+    console.log('Hashed password:', user.password);
+
     // Compare password with the hashed password in the database
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', isMatch);
+
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
@@ -99,6 +105,18 @@ const loginUser = async (req, res) => {
     res.status(500).send('Server error');
   }
 };
+
+
+const plainTextPassword = 'swoyam';
+const hashedPassword = '$2a$10$DV46Rg14wXixykRnI0iA5.9AgIVVpRFx8plOLjRGMSuVpWuZh0UBu';
+
+bcrypt.compare(plainTextPassword, hashedPassword, (err, isMatch) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log('Password match:', isMatch);
+  }
+});
 
 module.exports = {
   createUser,
