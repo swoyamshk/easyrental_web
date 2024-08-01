@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const userSchema = new Schema({
+const feedbackSchema = new Schema({
   title: {
     type: String,
   },
@@ -10,3 +10,7 @@ const userSchema = new Schema({
     required: true,
   }
 });
+
+const Feedback = mongoose.model('Feedback', feedbackSchema);
+
+module.exports = Feedback;
