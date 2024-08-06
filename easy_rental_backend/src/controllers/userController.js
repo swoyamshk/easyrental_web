@@ -2,87 +2,80 @@ const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const UserProfile = require("../models/userProfileModel");
 dotenv.config();
 
+
+// User registration
 const createUser = async (req, res) => {
-  const { email, password, displayName, photoURL, role, provider } = req.body;
+  const { email, password, displayName, role, provider } = req.body;
 
   try {
-    console.log('createUser called with:', req.body);
-
-    // Check if user already exists
     let user = await User.findOne({ email });
-    console.log('User findOne result:', user); // Log the result
+
     if (user) {
-      return res.status(400).json({ msg: 'User already exists' });
+      return res.status(400).json({ msg: "User already exists" });
     }
 
-    // Hash the password before saving the user
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    console.log('Hashed password:', hashedPassword);
-
-    // Create a new user instance
-    const newUser = new User({
+    user = new User({
       email,
-      password: hashedPassword, // Use the hashed password
+      password,
       displayName,
-      photoURL,
       role,
       provider,
     });
 
-    await newUser.save(); // Save the user to the database
-    console.log('User saved:', newUser);
+    await user.save();
 
-    const payload = {
-      user: {
-        id: newUser.id,
-      },
-    };
+    // Create profile for the new user
+    const newProfile = new UserProfile({ user: user._id });
+    await newProfile.save();
 
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' },
-      (err, token) => {
-        if (err) throw err; // Handle error
-        res.status(201).json({ msg: "User Registered Successfully", token, userDetails: newUser });
-      }
-    );
+    // do this if you want to redirect to dashboard after registration
+    // const payload = {
+    //   user: {
+    //     id: user.id,
+    //   },
+    // };
+
+    // console.log(payload);
+
+    // jwt.sign(
+    //   payload,
+    //   process.env.JWT_SECRET,
+    //   { expiresIn: "1h" },
+    //   (err, token) => {
+    //     if (err) throw err;
+    //     res.json({ token});
+    //   }
+    // );
+
+    res.status(201).json({
+      msg: "User registered successfully",
+      user: user,
+      userProfile: newProfile,
+    });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send({ msg: err.message });
   }
 };
 
+// User login
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log('loginUser called with:', req.body);
-
-    // Find the user by email
     let user = await User.findOne({ email });
-    console.log('User findOne result:', user); // Log the result
+
     if (!user) {
-      console.log('User not found');
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    console.log('User found:', user);
-
-    // Log plain text password and hashed password
-    console.log('Plain text password:', password);
-    console.log('Hashed password:', user.password);
-
-    // Compare password with the hashed password in the database
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log('Password match:', isMatch);
 
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
     const payload = {
@@ -94,31 +87,90 @@ const loginUser = async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: '1h' },
+      { expiresIn: "1h" },
       (err, token) => {
-        if (err) throw err; // Handle error
-        res.json({ message: "User logged in successfully", token });
+        if (err) throw err;
+        res.json({
+          msg: "user logged in successfully",
+          token: `Bearer ${token}`,
+          user: user,
+        });
       }
     );
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
+  }
+};
+
+const getUser = async (req, res) => {
+  try {
+    const user = await User.find();
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
+
+// Get a single user by ID
+const getUserbyId = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
+
+const updateUser = async (req, res) => {
+  const { displayName, role, provider } = req.body;
+
+  try {
+    let user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    user.displayName = displayName || user.displayName;
+    user.role = role || user.role;
+    user.provider = provider || user.provider;
+
+    await user.save();
+
+    res.json({ msg: "User updated successfully", user });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 };
 
 
-const plainTextPassword = 'swoyam';
-const hashedPassword = '$2a$10$DV46Rg14wXixykRnI0iA5.9AgIVVpRFx8plOLjRGMSuVpWuZh0UBu';
+const deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    await UserProfile.findOneAndDelete({ user: req.params.id });
 
-bcrypt.compare(plainTextPassword, hashedPassword, (err, isMatch) => {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log('Password match:', isMatch);
+    res.json({ msg: "User deleted successfully" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
-});
+};
+
 
 module.exports = {
   createUser,
   loginUser,
+  deleteUser,
+  updateUser,
+  getUserbyId,
+  getUser
 };

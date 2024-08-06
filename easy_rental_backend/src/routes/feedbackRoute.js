@@ -1,11 +1,26 @@
 const express = require('express');
-// const app = express();
-const {createFeedback} = require('../controllers/feedbackController');
-
 const router = express.Router();
+const {
+  createFeedback,
+  getAllFeedbacks,
+  getFeedbackById,
+  updateFeedbackById,
+  deleteFeedbackById
+} = require('../controllers/feedbackController');
 
+// Create a new feedback
 router.post('/createFeedback', createFeedback);
 
-module.exports = router;
+// Get all feedbacks
+router.get('/getFeedback', getAllFeedbacks);
 
-//model, controller, route
+// Get feedback by ID
+router.get('/getFeedback/:id', getFeedbackById);
+
+// Update feedback by ID
+router.put('/updateFeedback/:id', updateFeedbackById);
+
+// Delete feedback by ID
+router.delete('/deleteFeedback/:id', deleteFeedbackById);
+
+module.exports = router;

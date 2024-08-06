@@ -3,12 +3,12 @@ const app =express();
 
 const connectDB = require('./src/config/db')
 
-const authRoute = require('./src/routes/authRoute');
 const carRoute = require('./src/routes/carRoute');
 const feedbackRoute = require('./src/routes/feedbackRoute');
 const paymentRoute = require('./src/routes/paymentRoute');
 const rentalRoute = require('./src/routes/rentalRoute');
 const userRoute = require('./src/routes/userRoute')
+const profileRoute = require('./src/routes/userProfileRoute')
 
 app.use(express.json());
 const port = 5000;
@@ -22,6 +22,7 @@ app.use('/api/car', carRoute);
 app.use('/api/feedback', feedbackRoute);
 app.use('/api/payment', paymentRoute);
 app.use('/api/rental', rentalRoute);
+app.use('/api/profile', profileRoute);
 
 // const mongoose = require('mongoose');
 

@@ -19,14 +19,9 @@ const userSchema = new Schema({
     type: String,
     trim: true,
   },
-  profileImage: {
-    type: String,
-    trim: true,
-  },
   role:{
     type: String,
-    enum:["Admin","Customer","Renter"],
-    default: "Customer"
+    enum:["admin","customer","renter"]
   },
   createdAt: {
     type: Date,

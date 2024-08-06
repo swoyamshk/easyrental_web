@@ -1,5 +1,5 @@
 const domain = "http://localhost:5000";
-const UserProfiles = require("../models/userModel");
+const UserProfiles = require("../models/userProfileModel");
 // Helper function to send error responses
 const sendErrorResponse = (res, error) => {
   res.status(500).json({ msg: error.message });
