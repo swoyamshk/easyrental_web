@@ -1,9 +1,28 @@
-import CategoryCard from '../CategoryCard/CatergoryCard'
-import teslaImage from "../assets/img/tesla.png";
-import bmw from "../assets/img/bmw.png";
-import mercedes from "../assets/img/mercedes.png";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const BrowseByCategory = () => (
+import CategoryCard from '../CategoryCard/CatergoryCard';
+
+const BrowseByCategory = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/car/getCars'); // Assuming your API endpoint is `/api/cars`
+        setCategories(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch cars');
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  return (
     <section className="py-12 px-6 md:px-10 bg-muted">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
@@ -13,33 +32,19 @@ const BrowseByCategory = () => (
           </a>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <CategoryCard
-            imgSrc={teslaImage}
-            imgAlt="Economy Cars"
-            title="Economy Cars"
-            description="Fuel-efficient and affordable"
-          />
-          <CategoryCard
-            imgSrc={bmw}
-            imgAlt="Luxury Cars"
-            title="Luxury Cars"
-            description="Indulge in style and comfort"
-          />
-          <CategoryCard
-            imgSrc={mercedes}
-            imgAlt="SUVs"
-            title="SUVs"
-            description="Spacious and versatile"
-          />
-          <CategoryCard
-            imgSrc={teslaImage}
-            imgAlt="Vans"
-            title="Vans"
-            description="Spacious and comfortable"
-          />
+          {categories.map((category) => (
+            <CategoryCard
+              key={category._id}
+              imgSrc={category.imageUrl} // Adjust according to your data structure
+              imgAlt={category.brand}
+              title={category.model}
+              description={category.description}
+            />
+          ))}
         </div>
       </div>
     </section>
   );
-  
-export default BrowseByCategory;  
+};
+
+export default BrowseByCategory;

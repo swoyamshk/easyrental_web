@@ -1,14 +1,13 @@
-const User = require('../models/userModel');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
+const User = require("../models/userModel");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 const UserProfile = require("../models/userProfileModel");
 dotenv.config();
 
-
 // User registration
 const createUser = async (req, res) => {
-  const { email, password, displayName, role, provider } = req.body;
+  const { email, password, firstName, lastName, role, provider } = req.body;
 
   try {
     let user = await User.findOne({ email });
@@ -20,7 +19,8 @@ const createUser = async (req, res) => {
     user = new User({
       email,
       password,
-      displayName,
+      firstName,
+      lastName,
       role,
       provider,
     });
@@ -119,7 +119,7 @@ const getUser = async (req, res) => {
 // Get a single user by ID
 const getUserbyId = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findById(req.params.id).select("-password");
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -131,7 +131,7 @@ const getUserbyId = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const { displayName, role, provider } = req.body;
+  const {firstName,lastName, role, provider } = req.body;
 
   try {
     let user = await User.findById(req.params.id);
@@ -139,7 +139,7 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    user.displayName = displayName || user.displayName;
+    // user.displayName = displayName || user.displayName;
     user.role = role || user.role;
     user.provider = provider || user.provider;
 
@@ -151,7 +151,6 @@ const updateUser = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
 
 const deleteUser = async (req, res) => {
   try {
@@ -165,12 +164,11 @@ const deleteUser = async (req, res) => {
   }
 };
 
-
 module.exports = {
   createUser,
   loginUser,
   deleteUser,
   updateUser,
   getUserbyId,
-  getUser
+  getUser,
 };

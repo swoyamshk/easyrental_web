@@ -13,22 +13,9 @@ import ContactUs from "./components/ContactUs/ContactUs";
 import HomePage from "./components/HomePage/HomePage";
 import RentForm from "./components/RentForm/RentForm";
 import BrowseCars from "./components/BrowseCars/BrowseCars";
-
+import BookForm from "./components/BookForm/BookFrom"
+import BookingConfirmation from "./components/BookingConfirmation/BookingConfirmation";
 function App() {
-  const cars = [
-    {
-      image: teslaImage,
-      name: "Tesla",
-      rating: 4,
-      passengers: "3+1",
-      driverOption: true,
-      transmission: true,
-      airConditioning: true,
-      fuelPolicy: true,
-      meetAndGreet: true,
-    },
-  ];
-
   return (
     // <Router>
     //   <Navbar />
@@ -67,6 +54,8 @@ function App() {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/rent" element={<RentForm />} />
           <Route path="/browse-cars" element={<BrowseCars />} />
+          <Route path="/book" element={<BookForm />} />
+          <Route path="/bookingconfirmation" element={<BookingConfirmation/>} />
 
         </Routes>
       </Router>

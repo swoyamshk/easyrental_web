@@ -1,17 +1,31 @@
 const Car = require('../models/carModel');
 
-// Create a new car
+
+
+
+
 const createCar = async (req, res) => {
-  const { brand, model, year, pricePerDay, available } = req.body;
-  const newCar = new Car({ brand, model, year, pricePerDay, available: available !== undefined ? available : true });
+  const { brand, model, year, pricePerDay, available, description } = req.body;
+  const imageUrl = req.file ? `http://localhost:5000/uploads/car/${req.file.filename}` : null; // Store the file path
+
+  const newCar = new Car({
+    brand,
+    model,
+    year,
+    pricePerDay,
+    available: available !== undefined ? available : true,
+    description,
+    imageUrl,
+  });
 
   try {
     const response = await newCar.save();
-    res.status(201).json({ message: "Car created successfully", response });
+    res.status(201).json({ message: 'Car created successfully', response });
   } catch (err) {
-    res.status(500).json({ message: "Internal server error", err });
+    res.status(500).json({ message: 'Internal server error', err });
   }
 };
+
 
 // Get all cars
 const getAllCars = async (req, res) => {

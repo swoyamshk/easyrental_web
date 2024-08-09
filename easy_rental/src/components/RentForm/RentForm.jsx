@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import axiosInstance from '../../config/axiosConfig';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RentForm = () => {
   const [formData, setFormData] = useState({
-    make: '',
+    brand: '',
     model: '',
     year: '',
     mileage: '',
-    dailyRate: '',
+    pricePerDay: '',
     description: '',
-    photos: [],
+    image: null, // New field for the image
   });
 
   const handleChange = (e) => {
@@ -19,25 +22,47 @@ const RentForm = () => {
     });
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
+  const handleImageChange = (e) => {
     setFormData({
       ...formData,
-      photos: files,
+      image: e.target.files[0], // Save the selected file in state
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log(formData);
+
+    const data = new FormData();
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
+
+    try {
+      const response = await axiosInstance.post('/api/car/createCar', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Important for file uploads
+        },
+      });
+      toast.success('Car created successfully');
+      console.log('Car created successfully', response.data);
+      setFormData({
+        brand: '',
+        model: '',
+        year: '',
+        mileage: '',
+        pricePerDay: '',
+        description: '',
+        image: null, // Reset the image field
+      });
+    } catch (error) {
+      console.error('Error creating car', error);
+      toast.error('Error creating car');
+    }
   };
 
   return (
-    <div
-      className="rounded-lg border bg-card text-card-foreground shadow-sm max-w-4xl mx-auto p-6 sm:p-8 md:p-10"
-      style={{ height: '620px' }} // Adjust height to accommodate the image preview
-    >
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm max-w-4xl mx-auto p-6 sm:p-8 md:p-10" style={{ height: '620px' }}>
+      <ToastContainer />
       <div className="flex flex-col space-y-1.5">
         <h3 className="whitespace-nowrap tracking-tight text-3xl font-bold">List Your Car for Rent</h3>
         <p className="text-sm text-muted-foreground">Enter the details below to advertise your car for rent.</p>
@@ -47,12 +72,12 @@ const RentForm = () => {
           <div className="grid gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="make">Make</label>
+                <label className="text-sm font-medium" htmlFor="brand">Brand</label>
                 <input
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  id="make"
+                  id="brand"
                   placeholder="Toyota"
-                  value={formData.make}
+                  value={formData.brand}
                   onChange={handleChange}
                 />
               </div>
@@ -92,13 +117,13 @@ const RentForm = () => {
               </div>
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-medium" htmlFor="dailyRate">Daily Rental Rate</label>
+              <label className="text-sm font-medium" htmlFor="pricePerDay">Daily Rental Rate</label>
               <input
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                id="dailyRate"
+                id="pricePerDay"
                 placeholder="$50"
                 type="number"
-                value={formData.dailyRate}
+                value={formData.pricePerDay}
                 onChange={handleChange}
               />
             </div>
@@ -114,33 +139,15 @@ const RentForm = () => {
               ></textarea>
             </div>
           </div>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <label className="text-sm font-medium" htmlFor="photos">Upload Photos</label>
-              <div className="grid gap-4 h-1/2 w-1/2">
-              {formData.photos.length > 0 && (
-                <div className="grid gap-4">
-                  {formData.photos.map((file, index) => (
-                    <div key={index} className="grid gap-2">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={`Preview ${index}`}
-                        className="h-32 w-32 object-cover rounded-md"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-              <input
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                id="photos"
-                multiple
-                type="file"
-                onChange={handleFileChange}
-              />
-            </div>
-            
+          <div className="grid gap-2">
+            <label className="text-sm font-medium" htmlFor="image">Car Image</label>
+            <input
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
           </div>
           <div className="flex items-center">
             <div className="flex justify-end">
@@ -152,6 +159,7 @@ const RentForm = () => {
               </button>
             </div>
           </div>
+         
         </form>
       </div>
     </div>

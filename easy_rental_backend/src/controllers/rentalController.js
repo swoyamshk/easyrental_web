@@ -4,6 +4,13 @@ const Rental = require('../models/rentalModel');
 const createRental = async (req, res) => {
   const { user, car, rentalStart, rentalEnd, totalCost, status } = req.body;
 
+  console.log('Received rental data:', req.body); // Log the received data
+
+  // Validate input data
+  if (!user || !car || !rentalStart || !rentalEnd || !totalCost) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
   const newRental = new Rental({
     user,
     car,
@@ -17,9 +24,11 @@ const createRental = async (req, res) => {
     const savedRental = await newRental.save();
     res.status(201).json({ message: "Rental created successfully", savedRental });
   } catch (err) {
+    console.error('Error creating rental:', err); // Log error for debugging
     res.status(500).json({ message: "Internal server error", err });
   }
 };
+
 
 // Get all rentals
 const getAllRentals = async (req, res) => {
