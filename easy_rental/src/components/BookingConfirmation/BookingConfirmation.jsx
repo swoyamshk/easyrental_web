@@ -1,14 +1,20 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const BookingConfirmation = () => {
   const { state } = useLocation();
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
   console.log('BookingConfirmation state:', state); // Add debugging here
 
   const car = state?.car || {};
   const rentalStart = state?.rentalStart || 'N/A';
   const rentalEnd = state?.rentalEnd || 'N/A';
   const totalCost = state?.totalCost || 'N/A';
+
+  const handleViewBookingDetails = () => {
+    navigate('/history'); // Redirect to /history
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh] bg-background px-4 py-12 sm:px-6 lg:px-8">
@@ -49,7 +55,10 @@ const BookingConfirmation = () => {
             </div>
           </div>
           <div className="flex items-center p-6">
-            <button className="bg-green-500 text-slate-100 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full">
+            <button
+              onClick={handleViewBookingDetails} // Add onClick event
+              className="bg-green-500 text-slate-100 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+            >
               View Booking Details
             </button>
           </div>

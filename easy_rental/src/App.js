@@ -15,6 +15,8 @@ import RentForm from "./components/RentForm/RentForm";
 import BrowseCars from "./components/BrowseCars/BrowseCars";
 import BookForm from "./components/BookForm/BookFrom"
 import BookingConfirmation from "./components/BookingConfirmation/BookingConfirmation";
+import BookingHistory from "./components/BookingHistory/BookingHistory";
+import CreateCategoryForm from "./components/CategoryForm/CategoryForm";
 function App() {
   return (
     // <Router>
@@ -56,6 +58,9 @@ function App() {
           <Route path="/browse-cars" element={<BrowseCars />} />
           <Route path="/book" element={<BookForm />} />
           <Route path="/bookingconfirmation" element={<BookingConfirmation/>} />
+          <Route path="/history" element={<BookingHistory/>}/>
+          <Route path="/category" element={<CreateCategoryForm  onSuccess={() => console.log('Category created successfully!')}/>}/>
+
 
         </Routes>
       </Router>

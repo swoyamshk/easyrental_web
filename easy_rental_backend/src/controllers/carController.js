@@ -1,12 +1,8 @@
 const Car = require('../models/carModel');
 
-
-
-
-
 const createCar = async (req, res) => {
-  const { brand, model, year, pricePerDay, available, description } = req.body;
-  const imageUrl = req.file ? `http://localhost:5000/uploads/car/${req.file.filename}` : null; // Store the file path
+  const { brand, model, year, pricePerDay, available, description, category } = req.body;
+  const imageUrl= req.file ? `http://localhost:5000/uploads/car/${req.file.filename}` : null; // Store the file path
 
   const newCar = new Car({
     brand,
@@ -16,6 +12,7 @@ const createCar = async (req, res) => {
     available: available !== undefined ? available : true,
     description,
     imageUrl,
+    category
   });
 
   try {

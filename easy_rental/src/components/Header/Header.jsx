@@ -1,16 +1,16 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
 
   // Check if the user is logged in
-  const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem("token");
 
   // Handle user logout
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/'); // Redirect to homepage or any other page after logout
+    localStorage.removeItem("token");
+    navigate("/"); // Redirect to homepage or any other page after logout
   };
 
   return (
@@ -25,11 +25,17 @@ const Navbar = () => {
         <Link className="hover:underline" to="/browse-cars">
           Browse Cars
         </Link>
-        <Link className="hover:underline" to="rent">
+        <Link className="hover:underline" to="/rent">
           Rent a Car
         </Link>
-        <Link className="hover:underline" to="/book">
+        <Link className="hover:underline" to="/category">
+          Create Category
+        </Link>
+        <Link className="hover:underline" to="/contact">
           Contact
+        </Link>
+        <Link className="hover:underline" to="/history">
+          History
         </Link>
         {!isLoggedIn ? (
           <>
@@ -41,10 +47,7 @@ const Navbar = () => {
             </Link>
           </>
         ) : (
-          <button
-            onClick={handleLogout}
-            className="hover:underline"
-          >
+          <button onClick={handleLogout} className="hover:underline">
             Logout
           </button>
         )}

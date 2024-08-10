@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../config/axiosConfig';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,7 +12,25 @@ const RentForm = () => {
     pricePerDay: '',
     description: '',
     image: null, // New field for the image
+    category: '', // New field for the category
   });
+
+  const [categories, setCategories] = useState([]); // State for categories
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axiosInstance.get('/api/category/getAllCategories'); // Adjust the endpoint as needed
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories', error);
+        toast.error('Error fetching categories');
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -31,16 +49,21 @@ const RentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
     }
-
+  
+    // Log FormData contents
+    for (const [key, value] of data.entries()) {
+      console.log(`${key}:`, value);
+    }
+  
     try {
       const response = await axiosInstance.post('/api/car/createCar', data, {
         headers: {
-          'Content-Type': 'multipart/form-data', // Important for file uploads
+          'Content-Type': 'multipart/form-data',
         },
       });
       toast.success('Car created successfully');
@@ -52,14 +75,17 @@ const RentForm = () => {
         mileage: '',
         pricePerDay: '',
         description: '',
-        image: null, // Reset the image field
+        image: null,
+        category: '',
       });
     } catch (error) {
-      console.error('Error creating car', error);
-      toast.error('Error creating car');
+      console.error('Error creating car', error.response?.data || error.message);
+      toast.error(`Error creating car: ${error.response?.data?.message || error.message}`);
     }
   };
-
+  
+  
+  
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm max-w-4xl mx-auto p-6 sm:p-8 md:p-10" style={{ height: '620px' }}>
       <ToastContainer />
@@ -138,6 +164,21 @@ const RentForm = () => {
                 onChange={handleChange}
               ></textarea>
             </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium" htmlFor="category">Category</label>
+              <select
+  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+  id="category"
+  value={formData.category}
+  onChange={handleChange}
+>
+  <option value="">Select Category</option>
+  {categories.map((cat) => (
+    <option key={cat._id} value={cat._id}>{cat.name}</option>
+  ))}
+</select>
+
+            </div>
           </div>
           <div className="grid gap-2">
             <label className="text-sm font-medium" htmlFor="image">Car Image</label>
@@ -159,7 +200,6 @@ const RentForm = () => {
               </button>
             </div>
           </div>
-         
         </form>
       </div>
     </div>

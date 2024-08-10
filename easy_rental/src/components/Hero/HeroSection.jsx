@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import carVideo from "../assets/videos/carvid.mp4";
 
 const HeroSection = () => {
   const [pickupDate, setPickupDate] = useState(null);
@@ -8,14 +9,25 @@ const HeroSection = () => {
   const [location, setLocation] = useState("san-francisco");
 
   return (
-    <section className="bg-primary py-16 px-6 md:px-10 flex flex-col items-center justify-center">
+    <section className="relative bg-primary py-20 px-6 md:px-10 flex flex-col items-center justify-center overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        className="absolute inset-0 object-cover w-full h-full z-[-1]"
+      >
+        <source src={carVideo} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <form className="bg-slate-100 rounded-lg shadow-lg p-6 w-full max-w-md flex flex-col gap-4">
       <h1 className="text-4xl font-bold text-primary-foreground mb-4">
         Find Your Perfect Car
       </h1>
       <p className="text-lg text-primary-foreground mb-8">
         Rent the car you need, when you need it.
       </p>
-      <form className="bg-primary-foreground rounded-lg shadow-lg p-6 w-full max-w-md flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <label htmlFor="pickup-date" className="text-sm font-medium">

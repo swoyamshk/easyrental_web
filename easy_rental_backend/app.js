@@ -10,6 +10,8 @@ const paymentRoute = require('./src/routes/paymentRoute');
 const rentalRoute = require('./src/routes/rentalRoute');
 const userRoute = require('./src/routes/userRoute')
 const profileRoute = require('./src/routes/userProfileRoute')
+const categoryRoute = require('./src/routes/categoryRoute')
+
 
 app.use(express.json());
 const port = process.env.port;
@@ -27,6 +29,8 @@ app.use('/api/feedback', feedbackRoute);
 app.use('/api/payment', paymentRoute);
 app.use('/api/rental', rentalRoute);
 app.use('/api/profile', profileRoute);
+app.use('/api/category', categoryRoute);
+
 
 
 

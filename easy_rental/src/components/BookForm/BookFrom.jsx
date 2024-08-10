@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
@@ -7,21 +7,45 @@ const BookingForm = () => {
   const car = state?.car || {};
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [categoryName, setCategoryName] = useState('');
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId'); // Retrieve user ID
+
+  useEffect(() => {
+    // Fetch categories from API
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/category/getAllCategories');
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    // Match category ID to name
+    const matchedCategory = categories.find(cat => cat._id === car.category);
+    if (matchedCategory) {
+      setCategoryName(matchedCategory.name);
+    }
+  }, [categories, car.category]);
 
   const handleBooking = async () => {
     if (!startDate || !endDate) {
       console.error('Start Date and End Date are required');
       return;
     }
-    
+
     const days = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
     if (isNaN(days) || days <= 0) {
       console.error('Invalid date range');
       return;
     }
-  
+
     const totalCost = car.pricePerDay * days;
     console.log('Booking Data:', {
       user: userId,
@@ -31,7 +55,7 @@ const BookingForm = () => {
       totalCost,
       status: 'reserved'
     });
-  
+
     try {
       await axios.post('http://localhost:5000/api/rental/createRental', {
         user: userId,
@@ -41,21 +65,20 @@ const BookingForm = () => {
         totalCost,
         status: 'reserved'
       });
-      
-      navigate('/bookingconfirmation', { 
-        state: { 
+
+      navigate('/bookingconfirmation', {
+        state: {
           car,
           rentalStart: startDate,
           rentalEnd: endDate,
           totalCost
-        } 
+        }
       }); // Redirect to a success page
     } catch (error) {
       console.error(error);
       // Handle error
     }
   };
-  
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 md:px-6 md:py-16">
@@ -73,7 +96,7 @@ const BookingForm = () => {
         <div className="grid gap-6">
           <div>
             <h1 className="text-3xl font-bold">{car.year} {car.brand} {car.model}</h1>
-            <p className="text-muted-foreground">{car.category || 'Midsize Sedan'}</p>
+            <p className="text-muted-foreground">{categoryName || 'Midsize Sedan'}</p>
             <p className="text-muted-foreground">{car.year}</p>
             <p className="text-muted-foreground">{car.doors || 4} doors, {car.seats || 5} seats</p>
           </div>
