@@ -18,6 +18,7 @@ import BookingConfirmation from "./components/BookingConfirmation/BookingConfirm
 import BookingHistory from "./components/BookingHistory/BookingHistory";
 import CreateCategoryForm from "./components/CategoryForm/CategoryForm";
 import UserProfile from "./components/Profile/Profile";
+import FAQ from "./components/FaqComponent/FAQ";
 function App() {
   return (
     // <Router>
@@ -50,7 +51,9 @@ function App() {
     <div className="flex flex-col min-h-screen">
       <Router>
         <Navbar />
+       
         <Routes>
+
         <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<RegisterPage />} />
@@ -65,7 +68,7 @@ function App() {
 
 
         </Routes>
-      </Router>
+      </Router> 
     </div>
   );
 }

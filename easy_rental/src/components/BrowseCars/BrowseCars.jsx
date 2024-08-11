@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Slider from 'react-slider';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaTrash } from 'react-icons/fa'; // Import the trash icon
 
 const BrowseCars = () => {
   const [cars, setCars] = useState([]);
@@ -8,7 +12,11 @@ const BrowseCars = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 150]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const role = localStorage.getItem('role'); // Get the role from local storage
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,6 +27,10 @@ const BrowseCars = () => {
         const categoriesResponse = await axios.get('http://localhost:5000/api/category/getAllCategories');
         setCategories(categoriesResponse.data);
 
+        if (location.state?.selectedCategory) {
+          setSelectedCategories([location.state.selectedCategory]);
+        }
+
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch data');
@@ -27,7 +39,7 @@ const BrowseCars = () => {
     };
 
     fetchData();
-  }, []);
+  }, [location.state?.selectedCategory]);
 
   const handleCarClick = (car) => {
     navigate('/book', { state: { car } });
@@ -41,18 +53,34 @@ const BrowseCars = () => {
     );
   };
 
+  const handlePriceChange = (range) => {
+    setPriceRange(range);
+  };
+
+  const handleDeleteCar = async (carId) => {
+    if (window.confirm('Are you sure you want to delete this car?')) {
+      try {
+        await axios.delete(`http://localhost:5000/api/car/delete/${carId}`);
+        setCars((prevCars) => prevCars.filter((car) => car._id !== carId));
+        toast.success('Car deleted successfully');
+      } catch (err) {
+        toast.error('Failed to delete car');
+      }
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-  // Filter cars based on selected categories
-  const filteredCars = cars.filter((car) =>
-    selectedCategories.length === 0
-      ? true
-      : selectedCategories.includes(car.category)
-  );
+  const filteredCars = cars.filter((car) => {
+    const withinCategory = selectedCategories.length === 0 || selectedCategories.includes(car.category);
+    const withinPriceRange = car.pricePerDay >= priceRange[0] && car.pricePerDay <= priceRange[1];
+    return withinCategory && withinPriceRange;
+  });
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-12">
+      <ToastContainer />
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
         <div className="grid gap-1">
           <h1 className="text-2xl font-bold tracking-tight">Browse Cars</h1>
@@ -113,6 +141,33 @@ const BrowseCars = () => {
                     </div>
                   ))}
                 </div>
+                <div className="grid gap-2">
+                  <label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    htmlFor="price"
+                  >
+                    Price Range
+                  </label>
+                  <div className="flex items-center">
+                    <span className="mr-4">${priceRange[0]}</span>
+                    <Slider
+                      className="w-full"
+                      trackClassName="bg-gray-300 h-2 rounded-md"
+                      thumbClassName="custom-thumb h-4 w-4 rounded-full"
+                      min={0}
+                      max={150}
+                      step={10}
+                      value={priceRange}
+                      onChange={handlePriceChange}
+                      renderThumb={(props, state) => (
+                        <div {...props} className="custom-thumb h-4 w-4 rounded-full flex items-center justify-center">
+                          {state.valueNow}
+                        </div>
+                      )}
+                    />
+                    <span className="ml-4">${priceRange[1]}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -121,7 +176,7 @@ const BrowseCars = () => {
           {filteredCars.map((car, index) => (
             <div
               key={index}
-              className="rounded-lg border bg-card text-card-foreground shadow-sm"
+              className="rounded-lg border bg-card text-card-foreground shadow-sm relative" // Add relative positioning for delete icon
               onClick={() => handleCarClick(car)}
             >
               <a className="group relative block overflow-hidden rounded-lg">
@@ -133,7 +188,7 @@ const BrowseCars = () => {
                   className="h-48 w-full object-cover transition-all duration-300 group-hover:scale-105"
                   style={{ aspectRatio: '400 / 300', objectFit: 'cover' }}
                 />
-                <div className="absolute inset-0 text-white  bg-black/50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <div className="absolute inset-0 text-white bg-black/50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <button className="inline-flex text-lg items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3">
                     Select
                   </button>
@@ -148,7 +203,20 @@ const BrowseCars = () => {
                   <div className="font-semibold">${car.pricePerDay}/day</div>
                 </div>
                 <div className="text-sm text-muted-foreground">{car.location}</div>
+                {role === 'admin' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevents triggering the car click
+                    handleDeleteCar(car._id);
+                  }}
+                  className="absolute top-2 right-2 text-red-600 hover:text-red-800"
+                  aria-label="Delete"
+                >
+                  <FaTrash size={20} />
+                </button>
+              )}
               </div>
+              
             </div>
           ))}
         </div>

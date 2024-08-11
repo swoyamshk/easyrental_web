@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { LoadScript, Autocomplete } from '@react-google-maps/api';
+
+const libraries = ['places']; // Necessary for Places Autocomplete
 
 const BookingForm = () => {
   const { state } = useLocation();
@@ -9,6 +14,8 @@ const BookingForm = () => {
   const [endDate, setEndDate] = useState('');
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState('');
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [autocomplete, setAutocomplete] = useState(null);
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId'); // Retrieve user ID
 
@@ -34,15 +41,52 @@ const BookingForm = () => {
     }
   }, [categories, car.category]);
 
+  const onLoad = (autocompleteInstance) => {
+    setAutocomplete(autocompleteInstance);
+  };
+
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      setPickupLocation(place.formatted_address || place.name);
+    } else {
+      console.log('Autocomplete is not loaded yet!');
+    }
+  };
+
   const handleBooking = async () => {
     if (!startDate || !endDate) {
-      console.error('Start Date and End Date are required');
+      toast.error('Start Date and End Date are required');
       return;
     }
 
-    const days = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+    if (!pickupLocation) {
+      toast.error('Pickup Location is required');
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const today = new Date();
+
+    // Reset time to 00:00:00 for comparison
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    if (start < today || end < today) {
+      toast.error('Dates cannot be in the past');
+      return;
+    }
+
+    if (end <= start) {
+      toast.error('End Date must be after Start Date');
+      return;
+    }
+
+    const days = (end - start) / (1000 * 60 * 60 * 24);
     if (isNaN(days) || days <= 0) {
-      console.error('Invalid date range');
+      toast.error('Invalid date range');
       return;
     }
 
@@ -52,6 +96,7 @@ const BookingForm = () => {
       car: car._id,
       rentalStart: startDate,
       rentalEnd: endDate,
+      pickupLocation,
       totalCost,
       status: 'reserved'
     });
@@ -62,6 +107,7 @@ const BookingForm = () => {
         car: car._id,
         rentalStart: startDate,
         rentalEnd: endDate,
+        pickupLocation,
         totalCost,
         status: 'reserved'
       });
@@ -71,17 +117,19 @@ const BookingForm = () => {
           car,
           rentalStart: startDate,
           rentalEnd: endDate,
+          pickupLocation,
           totalCost
         }
       }); // Redirect to a success page
     } catch (error) {
       console.error(error);
-      // Handle error
+      toast.error('Failed to book the car');
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 md:px-6 md:py-16">
+      <ToastContainer /> {/* Add ToastContainer for toast messages */}
       <div className="grid md:grid-cols-2 gap-8 md:gap-12">
         <div>
           <img
@@ -93,6 +141,7 @@ const BookingForm = () => {
             style={{ aspectRatio: '1000 / 500', objectFit: 'fit' }}
           />
         </div>
+        
         <div className="grid gap-6">
           <div>
             <h1 className="text-3xl font-bold">{car.year} {car.brand} {car.model}</h1>
@@ -155,6 +204,30 @@ const BookingForm = () => {
                     />
                   </div>
                 </div>
+                <div className="grid gap-2">
+                  <label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    htmlFor="pickup-location"
+                  >
+                    Pickup Location
+                  </label>
+                  <LoadScript
+                    googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+                    libraries={libraries}
+                  >
+                    <Autocomplete
+                      onLoad={onLoad}
+                      onPlaceChanged={onPlaceChanged}
+                    >
+                      <input
+                        type="text"
+                        id="pickup-location"
+                        placeholder="Enter pickup location"
+                        className="rounded-md border border-input bg-background px-3 py-2 text-sm w-full ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      />
+                    </Autocomplete>
+                  </LoadScript>
+                </div>
                 <button
                   type="button"
                   onClick={handleBooking}
@@ -166,6 +239,7 @@ const BookingForm = () => {
             </div>
           </div>
         </div>
+        
       </div>
     </div>
   );

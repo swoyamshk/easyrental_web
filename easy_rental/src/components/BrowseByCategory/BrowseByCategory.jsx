@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
-import CategoryCard from '../CategoryCard/CategoryCard'; // Corrected import path
+import CategoryCard from '../CategoryCard/CategoryCard';
 
 const BrowseByCategory = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -22,14 +24,17 @@ const BrowseByCategory = () => {
     fetchCategories();
   }, []);
 
-  // Slick carousel settings
+  const handleCategoryClick = (categoryId) => {
+    navigate('/browse-cars', { state: { selectedCategory: categoryId } });
+  };
+
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4, // Show 4 cards at a time
+    slidesToShow: 4,
     slidesToScroll: 1,
-    autoplay: true, // Enable autoplay
+    autoplay: true,
     autoplaySpeed: 3000,
     responsive: [
       {
@@ -71,12 +76,16 @@ const BrowseByCategory = () => {
             <Slider {...settings}>
               {categories.map((category) => (
                 <div key={category._id} className="p-4">
-                  <div className="transition-transform transform hover:scale-105 hover:shadow-lg">
+                  <div
+                    className="transition-transform transform hover:scale-105 hover:shadow-lg"
+                    onClick={() => handleCategoryClick(category._id)}
+                  >
                     <CategoryCard
-                      imgSrc={category.imageUrl} // Adjust according to your data structure
-                      imgAlt={category.name} // Assuming `name` is a better descriptor for the alt tag
-                      title={category.name} // Adjust based on your data
+                      imgSrc={category.imageUrl}
+                      imgAlt={category.name}
+                      title={category.name}
                       description={category.description}
+                      className="h-[450px] max-h-[350px] flex flex-col" // Fixed height
                     />
                   </div>
                 </div>

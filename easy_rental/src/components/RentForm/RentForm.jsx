@@ -11,17 +11,17 @@ const RentForm = () => {
     mileage: '',
     pricePerDay: '',
     description: '',
-    image: null, // New field for the image
-    category: '', // New field for the category
+    image: null,
+    category: '',
   });
 
-  const [categories, setCategories] = useState([]); // State for categories
+  const [categories, setCategories] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
 
-  // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axiosInstance.get('/api/category/getAllCategories'); // Adjust the endpoint as needed
+        const response = await axiosInstance.get('/api/category/getAllCategories');
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories', error);
@@ -41,25 +41,22 @@ const RentForm = () => {
   };
 
   const handleImageChange = (e) => {
+    const file = e.target.files[0];
     setFormData({
       ...formData,
-      image: e.target.files[0], // Save the selected file in state
+      image: file,
     });
+    setImagePreview(URL.createObjectURL(file)); // Set the image preview
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);
     }
-  
-    // Log FormData contents
-    for (const [key, value] of data.entries()) {
-      console.log(`${key}:`, value);
-    }
-  
+
     try {
       const response = await axiosInstance.post('/api/car/createCar', data, {
         headers: {
@@ -78,16 +75,15 @@ const RentForm = () => {
         image: null,
         category: '',
       });
+      setImagePreview(null); // Clear the image preview
     } catch (error) {
       console.error('Error creating car', error.response?.data || error.message);
       toast.error(`Error creating car: ${error.response?.data?.message || error.message}`);
     }
   };
-  
-  
-  
+
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm max-w-4xl mx-auto p-6 sm:p-8 md:p-10" style={{ height: '620px' }}>
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm max-w-5xl mx-auto p-6 sm:p-8 md:p-10" style={{ height: '680px' }}>
       <ToastContainer />
       <div className="flex flex-col space-y-1.5">
         <h3 className="whitespace-nowrap tracking-tight text-3xl font-bold">List Your Car for Rent</h3>
@@ -167,30 +163,17 @@ const RentForm = () => {
             <div className="grid gap-2">
               <label className="text-sm font-medium" htmlFor="category">Category</label>
               <select
-  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-  id="category"
-  value={formData.category}
-  onChange={handleChange}
->
-  <option value="">Select Category</option>
-  {categories.map((cat) => (
-    <option key={cat._id} value={cat._id}>{cat.name}</option>
-  ))}
-</select>
-
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <label className="text-sm font-medium" htmlFor="image">Car Image</label>
-            <input
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </div>
-          <div className="flex items-center">
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                id="category"
+                value={formData.category}
+                onChange={handleChange}
+              >
+                <option value="">Select Category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
+              <div className="flex items-center mt-2">
             <div className="flex justify-end">
               <button
                 type="submit"
@@ -200,6 +183,28 @@ const RentForm = () => {
               </button>
             </div>
           </div>
+            </div>
+          </div>
+          <div className="grid">
+            <label className="text-sm font-medium" htmlFor="image">Car Image</label>
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Selected Car"
+                className="rounded-md border border-input"
+                style={{ maxHeight: '200px', objectFit: 'cover' }}
+              />
+            )}
+            <input
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            
+          </div>
+          
         </form>
       </div>
     </div>
