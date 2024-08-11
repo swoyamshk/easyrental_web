@@ -1,14 +1,14 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import DashboardCard from "./components/DashboardCard/DashboardCard";
+// import DashboardCard from "./components/DashboardCard/DashboardCard";
 // import Navbar from "./components/Navbar/Navbar";
 import Navbar from "./components/Header/Header";
-import teslaImage from "./assets/img/tesla.png";
-import CarCardContainer from "./components/CarCardComponent/CarCardComponent";
+// import teslaImage from "./assets/img/tesla.png";
+// import CarCardContainer from "./components/CarCardComponent/CarCardComponent";
 import LoginPage from "./components/Login/Login";
 import RegisterPage from "./components/SignUp/SignUp";
-import RecentActivityCard from "./components/RecentActivityCard/RecentActivityCard";
+// import RecentActivityCard from "./components/RecentActivityCard/RecentActivityCard";
 import ContactUs from "./components/ContactUs/ContactUs";
 import HomePage from "./components/HomePage/HomePage";
 import RentForm from "./components/RentForm/RentForm";
@@ -17,6 +17,7 @@ import BookForm from "./components/BookForm/BookFrom"
 import BookingConfirmation from "./components/BookingConfirmation/BookingConfirmation";
 import BookingHistory from "./components/BookingHistory/BookingHistory";
 import CreateCategoryForm from "./components/CategoryForm/CategoryForm";
+import UserProfile from "./components/Profile/Profile";
 function App() {
   return (
     // <Router>
@@ -59,7 +60,8 @@ function App() {
           <Route path="/book" element={<BookForm />} />
           <Route path="/bookingconfirmation" element={<BookingConfirmation/>} />
           <Route path="/history" element={<BookingHistory/>}/>
-          <Route path="/category" element={<CreateCategoryForm  onSuccess={() => console.log('Category created successfully!')}/>}/>
+          <Route path="/category" element={<CreateCategoryForm />}/>
+          <Route path="/profile" element={<UserProfile/>}/>
 
 
         </Routes>

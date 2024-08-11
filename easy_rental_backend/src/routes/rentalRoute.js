@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const rentalController = require('../controllers/rentalController');
+const auth = require("../middleware/authMiddleware");
 
 // Create a new rental (POST /api/rentals)
 router.post('/createRental', rentalController.createRental);
 
 // Get all rentals (GET /api/rentals)
-router.get('/getRentals', rentalController.getAllRentals);
+router.get('/getRentals', auth, rentalController.getAllRentals);
 
 // Get a single rental by ID (GET /api/rentals/:id)
 router.get('/getRentals/:id', rentalController.getRentalById);

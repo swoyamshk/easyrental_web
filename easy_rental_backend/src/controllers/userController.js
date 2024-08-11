@@ -103,6 +103,20 @@ const loginUser = async (req, res) => {
   }
 };
 
+
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
 const getUser = async (req, res) => {
   try {
     const user = await User.find();
@@ -131,7 +145,8 @@ const getUserbyId = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const {firstName,lastName, role, provider } = req.body;
+  const { firstName, lastName, bio, phone } = req.body;
+  const imageUrl = req.file ? `http://localhost:5000/uploads/profile/${req.file.filename}` : null; // Construct the image URL if a file is uploaded
 
   try {
     let user = await User.findById(req.params.id);
@@ -139,9 +154,12 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    // user.displayName = displayName || user.displayName;
-    user.role = role || user.role;
-    user.provider = provider || user.provider;
+    // Update user fields with provided values, or keep existing values if not provided
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.bio = bio || user.bio;
+    user.phone = phone || user.phone;
+    user.imageUrl = imageUrl || user.imageUrl;
 
     await user.save();
 
@@ -151,6 +169,7 @@ const updateUser = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
 
 const deleteUser = async (req, res) => {
   try {
@@ -171,4 +190,5 @@ module.exports = {
   updateUser,
   getUserbyId,
   getUser,
+  getUserProfile
 };

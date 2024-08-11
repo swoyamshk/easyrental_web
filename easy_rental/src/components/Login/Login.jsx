@@ -40,6 +40,7 @@ const LoginPage = () => {
 
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('userId', response.data.user._id); 
+        localStorage.setItem('role',response.data.user.role)
         // console.log(response.data.token);
 
         // Show success message

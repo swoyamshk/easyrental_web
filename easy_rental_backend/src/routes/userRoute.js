@@ -1,25 +1,40 @@
 const express = require('express');
-// const app = express();
+const auth = require("../middleware/authMiddleware");
+const multer = require('multer');
+const path = require('path');
+
 const {
     createUser,
     loginUser,
     getUserbyId,
     updateUser,
     deleteUser,
-    getUser
+    getUser,
+    getUserProfile
   } = require('../controllers/userController');
 
 const router = express.Router();
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/profile'); // Specify the destination folder for uploaded images
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Generate a unique filename
+  },
+});
+const upload = multer({ storage });
+
 router.post('/createUser', createUser);
 router.post('/loginUser', loginUser);
+router.get('/me', auth, getUserProfile);
 
 router.get('/getUser/', getUser);
 // GET /api/users/:id - Get a user by ID
 router.get('/getUser/:id', getUserbyId);
 
 // PUT /api/users/:id - Update a user by ID
-router.put('/updateUser/:id', updateUser);
+router.put('/updateUser/:id', upload.single('image'), updateUser);
 
 // DELETE /api/users/:id - Delete a user by ID
 router.delete('/deleteUser/:id', deleteUser);

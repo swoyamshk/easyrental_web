@@ -4,7 +4,7 @@ const Rental = require('../models/rentalModel');
 const createRental = async (req, res) => {
   const { user, car, rentalStart, rentalEnd, totalCost, status } = req.body;
 
-  console.log('Received rental data:', req.body); // Log the received data
+  // console.log('Received rental data:', req.body); // Log the received data
 
   // Validate input data
   if (!user || !car || !rentalStart || !rentalEnd || !totalCost) {
@@ -33,12 +33,18 @@ const createRental = async (req, res) => {
 // Get all rentals
 const getAllRentals = async (req, res) => {
   try {
-    const rentals = await Rental.find().populate('user').populate('car');
+    const userId = req.user.id; // Get user ID from authentication middleware
+
+    // Find rentals where the 'user' field matches the logged-in user's ID
+    const rentals = await Rental.find({ user: userId }).populate('user').populate('car');
+
     res.status(200).json(rentals);
   } catch (err) {
+    console.error("Error fetching rentals:", err);
     res.status(500).json({ message: "Internal server error", err });
   }
 };
+
 
 // Get a single rental by ID
 const getRentalById = async (req, res) => {

@@ -15,7 +15,11 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  displayName: {
+  firstName: {
+    type: String,
+    trim: true,
+  },
+  lastName: {
     type: String,
     trim: true,
   },
@@ -39,6 +43,18 @@ const userSchema = new Schema({
     type: String,
     default: 'local', // e.g., 'local', 'google', 'facebook'
   },
+  phone:{
+    type: String,
+    trim:true
+  },
+  bio:{
+    type:String,
+    trim: true
+  },
+  imageUrl:{
+    type:String,
+    trim:true
+  }
  
 });
 

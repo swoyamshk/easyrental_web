@@ -11,7 +11,7 @@ const carController = require('../controllers/carController');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'uploads/car'); // Specify the destination folder for uploaded images
+      cb(null, 'uploads/profile'); // Specify the destination folder for uploaded images
     },
     filename: (req, file, cb) => {
       cb(null, Date.now() + path.extname(file.originalname)); // Generate a unique filename
@@ -24,6 +24,8 @@ router.post('/createCar',auth, authorizeRole('admin'),upload.single('image'), ca
 
 // Get all cars (GET /api/cars)
 router.get('/getCars', carController.getAllCars);
+
+
 
 // Get a single car by ID (GET /api/cars/:id)
 router.get('/getCars/:id', carController.getCarById);

@@ -7,9 +7,13 @@ const Navbar = () => {
   // Check if the user is logged in
   const isLoggedIn = !!localStorage.getItem("token");
 
+  // Check the user's role
+  const userRole = localStorage.getItem("role");
+
   // Handle user logout
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     navigate("/"); // Redirect to homepage or any other page after logout
   };
 
@@ -25,25 +29,34 @@ const Navbar = () => {
         <Link className="hover:underline" to="/browse-cars">
           Browse Cars
         </Link>
-        <Link className="hover:underline" to="/rent">
-          Rent a Car
+        
+        {isLoggedIn && (
+          <>
+            <Link className="hover:underline" to="/history">
+              History
+            </Link>
+            <Link className="hover:underline" to="/profile">
+          Profile
         </Link>
-        <Link className="hover:underline" to="/category">
-          Create Category
-        </Link>
-        <Link className="hover:underline" to="/contact">
-          Contact
-        </Link>
-        <Link className="hover:underline" to="/history">
-          History
-        </Link>
+            {userRole === "admin" && (
+              <>
+                <Link className="hover:underline" to="/rent">
+                  Rent a Car
+                </Link>
+                <Link className="hover:underline" to="/category">
+                  Create Category
+                </Link>
+              </>
+            )}
+          </>
+        )}
         {!isLoggedIn ? (
           <>
             <Link className="hover:underline" to="/login">
               Login
             </Link>
             <Link className="hover:underline" to="/signup">
-              SignUp
+              Sign Up
             </Link>
           </>
         ) : (

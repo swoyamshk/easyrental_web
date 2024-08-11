@@ -9,9 +9,13 @@ const BookingHistory = () => {
     const fetchBookings = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/rental/getRentals"
+          "http://localhost:5000/api/rental/getRentals", // Updated endpoint
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+            },
+          }
         );
-        console.log(response.data); // Log the response data
         setBookings(response.data);
       } catch (error) {
         console.error(
