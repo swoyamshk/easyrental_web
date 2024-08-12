@@ -10,7 +10,8 @@ const {
     updateUser,
     deleteUser,
     getUser,
-    getUserProfile
+    getUserProfile,
+    getProfileImage
   } = require('../controllers/userController');
 
 const router = express.Router();
@@ -30,6 +31,9 @@ router.post('/loginUser', loginUser);
 router.get('/me', auth, getUserProfile);
 
 router.get('/getUser/', getUser);
+
+router.get('/getProfileImage', getProfileImage);
+
 // GET /api/users/:id - Get a user by ID
 router.get('/getUser/:id', getUserbyId);
 

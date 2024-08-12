@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Slider from 'react-slider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaTrash } from 'react-icons/fa'; // Import the trash icon
+import { FaTrash } from 'react-icons/fa';
 
 const BrowseCars = () => {
   const [cars, setCars] = useState([]);
@@ -13,10 +13,11 @@ const BrowseCars = () => {
   const [error, setError] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 150]);
+  const [searchQuery, setSearchQuery] = useState(''); // State for the search query
   const navigate = useNavigate();
   const location = useLocation();
 
-  const role = localStorage.getItem('role'); // Get the role from local storage
+  const role = localStorage.getItem('role'); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,13 +70,21 @@ const BrowseCars = () => {
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
   const filteredCars = cars.filter((car) => {
     const withinCategory = selectedCategories.length === 0 || selectedCategories.includes(car.category);
     const withinPriceRange = car.pricePerDay >= priceRange[0] && car.pricePerDay <= priceRange[1];
-    return withinCategory && withinPriceRange;
+    const matchesSearchQuery =
+      car.brand.toLowerCase().includes(searchQuery) || 
+      car.model.toLowerCase().includes(searchQuery);
+
+    return withinCategory && withinPriceRange && matchesSearchQuery;
   });
 
   return (
@@ -104,8 +113,10 @@ const BrowseCars = () => {
           </svg>
           <input
             className="flex h-10 w-full bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10 pr-4 py-2 rounded-md border border-muted focus:border-primary focus:ring-primary"
-            placeholder="Search by location"
+            placeholder="Search by model or brand"
             type="text"
+            value={searchQuery}
+            onChange={handleSearchChange} // Update search query on change
           />
         </div>
       </div>
@@ -176,7 +187,7 @@ const BrowseCars = () => {
           {filteredCars.map((car, index) => (
             <div
               key={index}
-              className="rounded-lg border bg-card text-card-foreground shadow-sm relative" // Add relative positioning for delete icon
+              className="rounded-lg border bg-card text-card-foreground shadow-sm relative" 
               onClick={() => handleCarClick(car)}
             >
               <a className="group relative block overflow-hidden rounded-lg">
@@ -206,7 +217,7 @@ const BrowseCars = () => {
                 {role === 'admin' && (
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevents triggering the car click
+                    e.stopPropagation();
                     handleDeleteCar(car._id);
                   }}
                   className="absolute top-2 right-2 text-red-600 hover:text-red-800"

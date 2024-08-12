@@ -18,4 +18,5 @@ router.put('/updateRentals/:id', rentalController.updateRental);
 // Delete a rental by ID (DELETE /api/rentals/:id)
 router.delete('/deleteRentals/:id', rentalController.deleteRental);
 
+router.put('/cancel/:id', rentalController.cancelRental);
 module.exports = router;

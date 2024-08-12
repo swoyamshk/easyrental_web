@@ -129,6 +129,28 @@ const getUser = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+const getProfileImage = async (req, res) => {
+  try {
+    console.log('User ID from token:', req.user.id);
+
+    // Find the user by ID and select only the imageUrl field
+    const user = await User.findById(req.user.id).select('imageUrl');
+
+    // Log the found user for debugging purposes
+    console.log('User found:', user);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Send back the imageUrl
+    res.json({ imageUrl: user.imageUrl });
+  } catch (error) {
+    console.error('Error fetching profile image:', error);
+    res.status(500).json({ error: 'Failed to fetch profile image' });
+  }
+};
+
 
 // Get a single user by ID
 const getUserbyId = async (req, res) => {
@@ -190,5 +212,6 @@ module.exports = {
   updateUser,
   getUserbyId,
   getUser,
-  getUserProfile
+  getUserProfile,
+  getProfileImage
 };

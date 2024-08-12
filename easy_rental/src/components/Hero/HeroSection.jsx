@@ -1,12 +1,25 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 import carVideo from "../assets/videos/carvid.mp4";
 
 const HeroSection = () => {
   const [pickupDate, setPickupDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
   const [location, setLocation] = useState("san-francisco");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate("/browse-cars", {
+      state: {
+        pickupDate,
+        returnDate,
+        location
+      }
+    });
+  };
 
   return (
     <section className="relative bg-primary py-20 px-6 md:px-10 flex flex-col items-center justify-center overflow-hidden">
@@ -21,13 +34,13 @@ const HeroSection = () => {
         Your browser does not support the video tag.
       </video>
 
-      <form className="bg-slate-100 rounded-lg shadow-lg p-6 w-full max-w-md flex flex-col gap-4">
-      <h1 className="text-4xl font-bold text-primary-foreground mb-4">
-        Find Your Perfect Car
-      </h1>
-      <p className="text-lg text-primary-foreground mb-8">
-        Rent the car you need, when you need it.
-      </p>
+      <form className="bg-slate-100 rounded-lg shadow-lg p-6 w-full max-w-md flex flex-col gap-4" onSubmit={handleSearch}>
+        <h1 className="text-4xl font-bold text-primary-foreground mb-4">
+          Find Your Perfect Car
+        </h1>
+        <p className="text-lg text-primary-foreground mb-8">
+          Rent the car you need, when you need it.
+        </p>
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <label htmlFor="pickup-date" className="text-sm font-medium">
@@ -72,10 +85,10 @@ const HeroSection = () => {
             onChange={(e) => setLocation(e.target.value)}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm h-10"
           >
-            <option value="san-francisco">San Francisco, CA</option>
-            <option value="los-angeles">Los Angeles, CA</option>
-            <option value="new-york">New York, NY</option>
-            <option value="chicago">Chicago, IL</option>
+            <option value="san-francisco">Kathmandu, Nepal</option>
+            <option value="los-angeles">Lalitpur, Nepal</option>
+            <option value="new-york">Bhaktapur, Nepal</option>
+            <option value="chicago">Pokhara, Nepal</option>
           </select>
         </div>
         <button className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-cyan-900 text-slate-100 hover:bg-primary/90 rounded-md px-8 w-full h-12">

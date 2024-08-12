@@ -2,13 +2,22 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const feedbackSchema = new Schema({
-  title: {
+  name: {
     type: String,
+    required: true
   },
-  description: {
+  email: {
     type: String,
     required: true,
-  }
+  },
+  experience: {
+    type: String,
+    required: true,
+  },
+  comments: {
+    type: String,
+    required: true,
+  },
 });
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);

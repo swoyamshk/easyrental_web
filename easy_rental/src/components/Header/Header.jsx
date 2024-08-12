@@ -1,20 +1,56 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import profileImg from "../assets/img/profileImg.png";
+import axios from "axios";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [formData, setFormData] = useState({ imageUrl: "" });
 
   // Check if the user is logged in
   const isLoggedIn = !!localStorage.getItem("token");
 
-  // Check the user's role
+  // Check the user's role from localStorage
   const userRole = localStorage.getItem("role");
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // Fetch the user data from the backend using the provided /getUser/ route
+      const fetchUserProfile = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/user/me",
+            {
+              headers: {
+                Authorization: localStorage.getItem("token"),
+              },
+            }
+          );
+          setUser(response.data);
+          setFormData({
+            imageUrl: response.data.profileImage || "",
+          });
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      };
+
+      fetchUserProfile();
+    }
+  }, [isLoggedIn]);
 
   // Handle user logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     navigate("/"); // Redirect to homepage or any other page after logout
+  };
+
+  // Toggle dropdown menu
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
   };
 
   return (
@@ -29,15 +65,15 @@ const Navbar = () => {
         <Link className="hover:underline" to="/browse-cars">
           Browse Cars
         </Link>
-        
+        <Link className="hover:underline" to="/feedback">
+          Feedback
+        </Link>
+
         {isLoggedIn && (
           <>
             <Link className="hover:underline" to="/history">
               History
             </Link>
-            <Link className="hover:underline" to="/profile">
-          Profile
-        </Link>
             {userRole === "admin" && (
               <>
                 <Link className="hover:underline" to="/rent">
@@ -48,9 +84,34 @@ const Navbar = () => {
                 </Link>
               </>
             )}
+            <div className="relative">
+              <img
+                src={user?.imageUrl || profileImg} // Fallback to a default image
+                alt="Profile"
+                className="h-10 w-10 rounded-full cursor-pointer object-cover"
+                onClick={toggleDropdown}
+              />
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50">
+                  <Link
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                    to="/profile"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </>
         )}
-        {!isLoggedIn ? (
+        {!isLoggedIn && (
           <>
             <Link className="hover:underline" to="/login">
               Login
@@ -59,10 +120,6 @@ const Navbar = () => {
               Sign Up
             </Link>
           </>
-        ) : (
-          <button onClick={handleLogout} className="hover:underline">
-            Logout
-          </button>
         )}
       </nav>
       <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 md:hidden">

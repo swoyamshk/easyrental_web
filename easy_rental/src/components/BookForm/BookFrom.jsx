@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { LoadScript, Autocomplete } from '@react-google-maps/api';
-
-const libraries = ['places']; // Necessary for Places Autocomplete
 
 const BookingForm = () => {
   const { state } = useLocation();
@@ -15,7 +12,6 @@ const BookingForm = () => {
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
-  const [autocomplete, setAutocomplete] = useState(null);
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId'); // Retrieve user ID
 
@@ -41,27 +37,9 @@ const BookingForm = () => {
     }
   }, [categories, car.category]);
 
-  const onLoad = (autocompleteInstance) => {
-    setAutocomplete(autocompleteInstance);
-  };
-
-  const onPlaceChanged = () => {
-    if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
-      setPickupLocation(place.formatted_address || place.name);
-    } else {
-      console.log('Autocomplete is not loaded yet!');
-    }
-  };
-
   const handleBooking = async () => {
     if (!startDate || !endDate) {
       toast.error('Start Date and End Date are required');
-      return;
-    }
-
-    if (!pickupLocation) {
-      toast.error('Pickup Location is required');
       return;
     }
 
@@ -107,10 +85,11 @@ const BookingForm = () => {
         car: car._id,
         rentalStart: startDate,
         rentalEnd: endDate,
-        pickupLocation,
+        pickupLocation, // Make sure this matches the backend field name
         totalCost,
         status: 'reserved'
       });
+      
 
       navigate('/bookingconfirmation', {
         state: {
@@ -211,22 +190,17 @@ const BookingForm = () => {
                   >
                     Pickup Location
                   </label>
-                  <LoadScript
-                    googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-                    libraries={libraries}
+                  <select
+                    id="pickup-location"
+                    value={pickupLocation}
+                    onChange={(e) => setPickupLocation(e.target.value)}
+                    className="rounded-md border border-input bg-background px-3 py-2 text-sm h-10"
                   >
-                    <Autocomplete
-                      onLoad={onLoad}
-                      onPlaceChanged={onPlaceChanged}
-                    >
-                      <input
-                        type="text"
-                        id="pickup-location"
-                        placeholder="Enter pickup location"
-                        className="rounded-md border border-input bg-background px-3 py-2 text-sm w-full ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                      />
-                    </Autocomplete>
-                  </LoadScript>
+                    <option value="kathmandu">Kathmandu, Nepal</option>
+                    <option value="lalitpur">Lalitpur, Nepal</option>
+                    <option value="bhaktapur">Bhaktapur, Nepal</option>
+                    <option value="pokhara">Pokhara, Nepal</option>
+                  </select>
                 </div>
                 <button
                   type="button"
@@ -239,7 +213,6 @@ const BookingForm = () => {
             </div>
           </div>
         </div>
-        
       </div>
     </div>
   );

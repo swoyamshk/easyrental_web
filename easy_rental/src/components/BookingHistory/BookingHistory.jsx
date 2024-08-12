@@ -28,6 +28,37 @@ const BookingHistory = () => {
     fetchBookings();
   }, []);
 
+  const cancelBooking = async (bookingId) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/rental/cancel/${bookingId}`,
+        {},
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
+      // Update the local state to reflect the change
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking._id === bookingId
+            ? { ...booking, status: "cancelled" }
+            : booking
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Error cancelling booking:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
+
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   const filteredBookings = bookings.filter((booking) =>
     booking.car && booking.car.model
       ? booking.car.model.toLowerCase().includes(searchTerm.toLowerCase())
@@ -64,6 +95,9 @@ const BookingHistory = () => {
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer">
                   Total Cost
                 </th>
+                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer">
+                  Status
+                </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-16"></th>
               </tr>
             </thead>
@@ -81,7 +115,6 @@ const BookingHistory = () => {
                       ? `${booking.car.brand} ${booking.car.model}`
                       : "Unknown Model"}
                   </td>
-
                   <td className="p-4 align-middle">
                     {(new Date(booking.rentalEnd) -
                       new Date(booking.rentalStart)) /
@@ -90,7 +123,13 @@ const BookingHistory = () => {
                   </td>
                   <td className="p-4 align-middle">{booking.totalCost}</td>
                   <td className="p-4 align-middle">
-                    <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10">
+                    {capitalizeFirstLetter(booking.status || "Pending")}
+                  </td>
+                  <td className="p-4 align-middle">
+                    <button
+                      onClick={() => cancelBooking(booking._id)}
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -103,10 +142,9 @@ const BookingHistory = () => {
                         strokeLinejoin="round"
                         className="w-5 h-5"
                       >
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M6 18L18 6M6 6l12 12"></path>
                       </svg>
-                      <span className="sr-only">View booking details</span>
+                      <span className="sr-only">Cancel booking</span>
                     </button>
                   </td>
                 </tr>

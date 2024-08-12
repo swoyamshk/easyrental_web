@@ -2,12 +2,10 @@ const Rental = require('../models/rentalModel');
 
 // Create a new rental
 const createRental = async (req, res) => {
-  const { user, car, rentalStart, rentalEnd, totalCost, status } = req.body;
-
-  // console.log('Received rental data:', req.body); // Log the received data
+  const { user, car, rentalStart, rentalEnd, totalCost, status, pickupLocation } = req.body;
 
   // Validate input data
-  if (!user || !car || !rentalStart || !rentalEnd || !totalCost) {
+  if (!user || !car || !rentalStart || !rentalEnd || !totalCost || !pickupLocation) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -18,13 +16,14 @@ const createRental = async (req, res) => {
     rentalEnd,
     totalCost,
     status: status || 'reserved',
+    pickupLocation // Update this line to use pickupLocation
   });
 
   try {
     const savedRental = await newRental.save();
     res.status(201).json({ message: "Rental created successfully", savedRental });
   } catch (err) {
-    console.error('Error creating rental:', err); // Log error for debugging
+    console.error('Error creating rental:', err);
     res.status(500).json({ message: "Internal server error", err });
   }
 };
@@ -77,6 +76,33 @@ const updateRental = async (req, res) => {
   }
 };
 
+const cancelRental = async (req, res) => {
+  const { id } = req.params; // Assuming you use the rental ID, not booking ID
+
+  try {
+    // Find the rental by ID
+    const rental = await Rental.findById(id);
+
+    if (!rental) {
+      return res.status(404).json({ message: 'Rental not found' });
+    }
+
+    // Check if the rental is already cancelled
+    if (rental.status === 'cancelled') {
+      return res.status(400).json({ message: 'Rental is already cancelled' });
+    }
+
+    // Update the status to 'cancelled'
+    rental.status = 'cancelled';
+    await rental.save();
+
+    res.status(200).json({ message: 'Rental cancelled successfully', rental });
+  } catch (error) {
+    console.error('Error cancelling rental:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // Delete a rental by ID
 const deleteRental = async (req, res) => {
   const { id } = req.params;
@@ -96,4 +122,5 @@ module.exports = {
   getRentalById,
   updateRental,
   deleteRental,
+  cancelRental
 };

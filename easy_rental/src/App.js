@@ -13,12 +13,14 @@ import ContactUs from "./components/ContactUs/ContactUs";
 import HomePage from "./components/HomePage/HomePage";
 import RentForm from "./components/RentForm/RentForm";
 import BrowseCars from "./components/BrowseCars/BrowseCars";
-import BookForm from "./components/BookForm/BookFrom"
+import BookForm from "./components/BookForm/BookFrom";
 import BookingConfirmation from "./components/BookingConfirmation/BookingConfirmation";
 import BookingHistory from "./components/BookingHistory/BookingHistory";
 import CreateCategoryForm from "./components/CategoryForm/CategoryForm";
 import UserProfile from "./components/Profile/Profile";
 import FAQ from "./components/FaqComponent/FAQ";
+import FeedbackForm from "./components/Feedback/Feedback";
+import ProtectedRoute from "./ProtectedRoutes/protectedRoute";
 function App() {
   return (
     // <Router>
@@ -51,24 +53,32 @@ function App() {
     <div className="flex flex-col min-h-screen">
       <Router>
         <Navbar />
-       
-        <Routes>
 
-        <Route path="/" element={<HomePage />} />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<RegisterPage />} />
           <Route path="/contact" element={<ContactUs />} />
-          <Route path="/rent" element={<RentForm />} />
+          <Route
+          path="/rent"
+          element={
+            <ProtectedRoute>
+              <RentForm />
+            </ProtectedRoute>
+          }
+        />
           <Route path="/browse-cars" element={<BrowseCars />} />
           <Route path="/book" element={<BookForm />} />
-          <Route path="/bookingconfirmation" element={<BookingConfirmation/>} />
-          <Route path="/history" element={<BookingHistory/>}/>
-          <Route path="/category" element={<CreateCategoryForm />}/>
-          <Route path="/profile" element={<UserProfile/>}/>
-
-
+          <Route
+            path="/bookingconfirmation"
+            element={<BookingConfirmation />}
+          />
+          <Route path="/history" element={<BookingHistory />} />
+          <Route path="/category" element={<CreateCategoryForm />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/feedback" element={<FeedbackForm />} />
         </Routes>
-      </Router> 
+      </Router>
     </div>
   );
 }
