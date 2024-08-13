@@ -12,6 +12,10 @@ const BookingForm = () => {
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCVC, setCardCVC] = useState('');
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId'); // Retrieve user ID
 
@@ -38,8 +42,8 @@ const BookingForm = () => {
   }, [categories, car.category]);
 
   const handleBooking = async () => {
-    if (!startDate || !endDate) {
-      toast.error('Start Date and End Date are required');
+    if (!startDate || !endDate || !cardNumber || !cardName || !cardExpiry || !cardCVC) {
+      toast.error('Please fill all required fields');
       return;
     }
 
@@ -47,7 +51,6 @@ const BookingForm = () => {
     const end = new Date(endDate);
     const today = new Date();
 
-    // Reset time to 00:00:00 for comparison
     start.setHours(0, 0, 0, 0);
     end.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
@@ -69,27 +72,37 @@ const BookingForm = () => {
     }
 
     const totalCost = car.pricePerDay * days;
-    console.log('Booking Data:', {
-      user: userId,
-      car: car._id,
-      rentalStart: startDate,
-      rentalEnd: endDate,
-      pickupLocation,
-      totalCost,
-      status: 'reserved'
-    });
 
+    // Process payment
+    let paymentId;
+    try {
+      const paymentResponse = await axios.post('http://localhost:5000/api/payment/createPayment', {
+        userId,
+        cardNumber,
+        cardName,
+        cardExpiry,
+        cardCVC,
+        amount: totalCost
+      });
+      paymentId = paymentResponse.data.payment._id;
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      toast.error('Payment failed');
+      return;
+    }
+
+    // Book the car
     try {
       await axios.post('http://localhost:5000/api/rental/createRental', {
         user: userId,
         car: car._id,
         rentalStart: startDate,
         rentalEnd: endDate,
-        pickupLocation, // Make sure this matches the backend field name
+        pickupLocation,
         totalCost,
-        status: 'reserved'
+        status: 'reserved',
+        paymentId // Include paymentId here
       });
-      
 
       navigate('/bookingconfirmation', {
         state: {
@@ -99,7 +112,7 @@ const BookingForm = () => {
           pickupLocation,
           totalCost
         }
-      }); // Redirect to a success page
+      });
     } catch (error) {
       console.error(error);
       toast.error('Failed to book the car');
@@ -119,8 +132,60 @@ const BookingForm = () => {
             className="w-full h-[400px] md:h-[400px] object-fit rounded-lg"
             style={{ aspectRatio: '1000 / 500', objectFit: 'fit' }}
           />
+
+          {/* Payment Container */}
+          <div className="mt-6 p-6 border border-gray-300 rounded-lg shadow-lg bg-white">
+            <h3 className="text-2xl font-semibold mb-4 text-gray-800">Payment Details</h3>
+            <p className="text-lg text-gray-600 mb-4">Total Cost: ${car.pricePerDay * ((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24))}</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="card-number">Card Number</label>
+                <input
+                  type="text"
+                  id="card-number"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="**** **** **** ****"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="card-name">Cardholder Name</label>
+                <input
+                  type="text"
+                  id="card-name"
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value)}
+                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="card-expiry">Expiration Date</label>
+                  <input
+                    type="text"
+                    id="card-expiry"
+                    value={cardExpiry}
+                    onChange={(e) => setCardExpiry(e.target.value)}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="MM/YY"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="card-cvc">CVC</label>
+                  <input
+                    type="text"
+                    id="card-cvc"
+                    value={cardCVC}
+                    onChange={(e) => setCardCVC(e.target.value)}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        
+
         <div className="grid gap-6">
           <div>
             <h1 className="text-3xl font-bold">{car.year} {car.brand} {car.model}</h1>

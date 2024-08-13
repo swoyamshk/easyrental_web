@@ -191,6 +191,16 @@ const updateUser = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+const getTotalUsers = async (req, res) => {
+  try {
+    // Count the number of users in the database
+    const totalUsers = await User.countDocuments();
+    res.json({ totalUsers });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
 
 
 const deleteUser = async (req, res) => {
@@ -213,5 +223,7 @@ module.exports = {
   getUserbyId,
   getUser,
   getUserProfile,
-  getProfileImage
+  getProfileImage,
+  getTotalUsers
+
 };

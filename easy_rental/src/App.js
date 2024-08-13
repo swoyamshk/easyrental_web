@@ -21,6 +21,7 @@ import UserProfile from "./components/Profile/Profile";
 import FAQ from "./components/FaqComponent/FAQ";
 import FeedbackForm from "./components/Feedback/Feedback";
 import ProtectedRoute from "./ProtectedRoutes/protectedRoute";
+import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 function App() {
   return (
     // <Router>
@@ -77,6 +78,7 @@ function App() {
           <Route path="/category" element={<CreateCategoryForm />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/feedback" element={<FeedbackForm />} />
+          <Route path="/admindashboard" element={ <AdminDashboard/>}/>
         </Routes>
       </Router>
     </div>

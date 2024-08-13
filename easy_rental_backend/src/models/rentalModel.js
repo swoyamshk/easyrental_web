@@ -32,6 +32,11 @@ const rentalSchema = new mongoose.Schema(
     pickupLocation: {
       type: String,
     },
+    paymentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Car",
+      required: true,
+    },
   },
   { timestamps: true }
 );

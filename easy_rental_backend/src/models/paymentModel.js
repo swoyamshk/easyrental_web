@@ -1,26 +1,33 @@
+// models/paymentModel.js
 const mongoose = require('mongoose');
 
 const paymentSchema = new mongoose.Schema({
-  rental: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Rental',
-    required: true
+    ref: 'User',
+    required: true,
   },
-  amount: {
-    type: Number,
-    required: true
-  },
-  paymentDate: {
-    type: Date,
-    default: Date.now
-  },
-  paymentMethod: {
+  cardNumber: {
     type: String,
-    enum: ['credit card', 'debit card', 'paypal'],
-    required: true
-  }
-}, { timestamps: true });
+    required: true,
+  },
+  cardName: {
+    type: String,
+    required: true,
+  },
+  cardExpiry: {
+    type: String,
+    required: true,
+  },
+  cardCVC: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
 const Payment = mongoose.model('Payment', paymentSchema);
-
 module.exports = Payment;

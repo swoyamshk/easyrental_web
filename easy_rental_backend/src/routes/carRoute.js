@@ -32,6 +32,7 @@ router.get('/getCars/:id', carController.getCarById);
 
 // Update a car by ID (PUT /api/cars/:id)
 router.put('/updateCars/:id', carController.updateCar);
+router.get('/cars/total', carController.getTotalCarsCount);
 
 // Delete a car by ID (DELETE /api/cars/:id)
 router.delete('/delete/:id', carController.deleteCar);

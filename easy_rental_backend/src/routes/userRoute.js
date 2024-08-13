@@ -11,7 +11,8 @@ const {
     deleteUser,
     getUser,
     getUserProfile,
-    getProfileImage
+    getProfileImage,
+    getTotalUsers
   } = require('../controllers/userController');
 
 const router = express.Router();
@@ -37,11 +38,13 @@ router.get('/getProfileImage', getProfileImage);
 // GET /api/users/:id - Get a user by ID
 router.get('/getUser/:id', getUserbyId);
 
+router.get('/totalusers', getTotalUsers);
 // PUT /api/users/:id - Update a user by ID
 router.put('/updateUser/:id', upload.single('image'), updateUser);
 
 // DELETE /api/users/:id - Delete a user by ID
 router.delete('/deleteUser/:id', deleteUser);
+
 
 module.exports = router;
 

@@ -2,10 +2,9 @@ const Rental = require('../models/rentalModel');
 
 // Create a new rental
 const createRental = async (req, res) => {
-  const { user, car, rentalStart, rentalEnd, totalCost, status, pickupLocation } = req.body;
+  const { user, car, rentalStart, rentalEnd, totalCost, status, pickupLocation, paymentId } = req.body;
 
-  // Validate input data
-  if (!user || !car || !rentalStart || !rentalEnd || !totalCost || !pickupLocation) {
+  if (!user || !car || !rentalStart || !rentalEnd || !totalCost || !pickupLocation || !paymentId) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -16,7 +15,8 @@ const createRental = async (req, res) => {
     rentalEnd,
     totalCost,
     status: status || 'reserved',
-    pickupLocation // Update this line to use pickupLocation
+    pickupLocation,
+    paymentId // Save the paymentId here
   });
 
   try {
@@ -27,6 +27,7 @@ const createRental = async (req, res) => {
     res.status(500).json({ message: "Internal server error", err });
   }
 };
+
 
 
 // Get all rentals
@@ -44,6 +45,16 @@ const getAllRentals = async (req, res) => {
   }
 };
 
+
+const getTotalRentals = async (req, res) => {
+  try {
+    const count = await Rental.countDocuments();
+    res.status(200).json({ count });
+  } catch (err) {
+    console.error("Error fetching total rentals:", err);
+    res.status(500).json({ message: "Internal server error", err });
+  }
+};
 
 // Get a single rental by ID
 const getRentalById = async (req, res) => {
@@ -116,11 +127,62 @@ const deleteRental = async (req, res) => {
   }
 };
 
+const getRecentActivities = async (req, res) => {
+  try {
+    const recentRentals = await Rental.find()
+      .sort({ createdAt: -1 }) // Sort by creation date, newest first
+      .limit(10)
+      .populate('user', 'firstName lastName') // Corrected field names
+      .populate('car', 'model'); // Populating car with only 'model' field
+
+    const activities = recentRentals.map(rental => ({
+      name: `${rental.user?.firstName || 'Unknown'} ${rental.user?.lastName || 'User'}`, // Combine firstName and lastName
+      status: rental.status,
+      car: rental.car?.model || 'Unknown Car', // Handle cases where car data might be missing
+      date: `Rented on ${new Date(rental.createdAt).toLocaleDateString()}`,
+      iconBgColor: rental.status === 'ongoing' ? 'bg-primary' : 'bg-secondary',
+      iconColor: rental.status === 'ongoing' ? 'text-primary-foreground' : 'text-secondary-foreground',
+    }));
+
+    res.json(activities);
+  } catch (error) {
+    console.error('Error fetching recent activities:', error.message);
+    console.error(error); // Log the full error object for more insights
+    res.status(500).json({ error: 'Failed to fetch recent activities', details: error.message });
+  }
+};
+
+
+
+
+const getTotalRevenue = async (req, res) => {
+  try {
+    // Sum all totalCost fields
+    const aggregateResult = await Rental.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$totalCost" }
+        }
+      }
+    ]);
+
+    const totalRevenue = aggregateResult[0] ? aggregateResult[0].totalRevenue : 0;
+    res.status(200).json({ totalRevenue });
+  } catch (err) {
+    console.error("Error fetching total revenue:", err);
+    res.status(500).json({ message: "Internal server error", err });
+  }
+};
+
 module.exports = {
   createRental,
   getAllRentals,
   getRentalById,
   updateRental,
   deleteRental,
-  cancelRental
+  cancelRental,
+  getTotalRentals,
+  getTotalRevenue,
+  getRecentActivities
 };

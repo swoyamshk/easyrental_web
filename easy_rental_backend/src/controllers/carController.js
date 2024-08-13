@@ -23,7 +23,14 @@ const createCar = async (req, res) => {
   }
 };
 
-
+const getTotalCarsCount = async (req, res) => {
+  try {
+    const count = await Car.countDocuments();
+    res.status(200).json({ count });
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error", err });
+  }
+};
 // Get all cars
 const getAllCars = async (req, res) => {
   try {
@@ -77,4 +84,5 @@ module.exports = {
   getCarById,
   updateCar,
   deleteCar,
+  getTotalCarsCount
 };

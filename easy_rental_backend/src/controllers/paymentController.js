@@ -1,55 +1,42 @@
+// controllers/paymentController.js
 const Payment = require('../models/paymentModel');
 
-// Get all payments
-exports.getAllPayments = async (req, res) => {
-  try {
-    const payments = await Payment.find().populate('rental');
-    res.status(200).json(payments);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Get payment by ID
-exports.getPaymentById = async (req, res) => {
-  try {
-    const payment = await Payment.findById(req.params.id).populate('rental');
-    if (!payment) return res.status(404).json({ error: 'Payment not found' });
-    res.status(200).json(payment);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Create a new payment
 exports.createPayment = async (req, res) => {
   try {
-    const payment = new Payment(req.body);
+    const { userId, cardNumber, cardName, cardExpiry, cardCVC, amount } = req.body;
+
+    // Validate required fields
+    if (!userId || !cardNumber || !cardName || !cardExpiry || !cardCVC || !amount) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const payment = new Payment({
+      userId,
+      cardNumber,
+      cardName,
+      cardExpiry,
+      cardCVC,
+      amount,
+    });
+
     await payment.save();
-    res.status(201).json(payment);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+
+    res.status(201).json({ message: 'Payment successful', payment });
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// Update a payment
-exports.updatePayment = async (req, res) => {
+exports.getPaymentsByUser = async (req, res) => {
   try {
-    const payment = await Payment.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!payment) return res.status(404).json({ error: 'Payment not found' });
-    res.status(200).json(payment);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+    const userId = req.params.userId;
 
-// Delete a payment
-exports.deletePayment = async (req, res) => {
-  try {
-    const payment = await Payment.findByIdAndDelete(req.params.id);
-    if (!payment) return res.status(404).json({ error: 'Payment not found' });
-    res.status(200).json({ message: 'Payment deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const payments = await Payment.find({ userId }).populate('carId');
+
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error('Error fetching payments:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

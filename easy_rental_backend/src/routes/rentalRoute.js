@@ -5,10 +5,10 @@ const auth = require("../middleware/authMiddleware");
 
 // Create a new rental (POST /api/rentals)
 router.post('/createRental', rentalController.createRental);
-
+router.get('/total', rentalController.getTotalRentals);
 // Get all rentals (GET /api/rentals)
 router.get('/getRentals', auth, rentalController.getAllRentals);
-
+router.get('/activities', rentalController.getRecentActivities);
 // Get a single rental by ID (GET /api/rentals/:id)
 router.get('/getRentals/:id', rentalController.getRentalById);
 
@@ -19,4 +19,5 @@ router.put('/updateRentals/:id', rentalController.updateRental);
 router.delete('/deleteRentals/:id', rentalController.deleteRental);
 
 router.put('/cancel/:id', rentalController.cancelRental);
+router.get('/revenue', rentalController.getTotalRevenue);
 module.exports = router;

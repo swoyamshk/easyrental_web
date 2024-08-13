@@ -82,6 +82,9 @@ const Navbar = () => {
                 <Link className="hover:underline" to="/category">
                   Create Category
                 </Link>
+                <Link className="hover:underline" to="/admindashboard">
+                  Dashboard
+                </Link>
               </>
             )}
             <div className="relative">
