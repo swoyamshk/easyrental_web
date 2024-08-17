@@ -75,10 +75,10 @@ function App() {
             element={<BookingConfirmation />}
           />
           <Route path="/history" element={<BookingHistory />} />
-          <Route path="/category" element={<CreateCategoryForm />} />
+          <Route path="/category" element={<ProtectedRoute><CreateCategoryForm /></ProtectedRoute>} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/feedback" element={<FeedbackForm />} />
-          <Route path="/admindashboard" element={ <AdminDashboard/>}/>
+          <Route path="/admindashboard" element={<ProtectedRoute> <AdminDashboard/></ProtectedRoute>}/>
         </Routes>
       </Router>
     </div>
